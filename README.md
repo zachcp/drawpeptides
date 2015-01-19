@@ -1,0 +1,47 @@
+# drawpeptides
+
+FIXME: description
+
+## Installation
+ git clone https://github.com/zachcp/drawpeptides.git
+ cd drawpeptides
+ lein repl
+
+## Usage
+
+The core functions are `makepeptide`, `makeimage` and `peptideanimation`. `makepeptide` takes a vector of keywords and
+turns it into a peptide. `makeimage` creaets and image and can take some keyword parameters
+ to change the size and the CDK options. `peptideanimation` takes a filename and vector of images to create an animatedgif.
+
+
+```[clojure]
+
+
+(def aminos (keys AminoAcids))
+;To generate a mol:
+(show (makemol))
+
+(def pep1 (makepeptide (take 3 aminos)))
+(def image1 (makeimage pep1 :width 800 :height 200  :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+(show image1)
+(save image1 "peptide-image1.png")
+
+(show
+  (makeimage
+   (makepeptide [:ALA :ALA :ALA :ALA])) )
+
+
+;To generate an animated peptide and write it to the file
+(peptideanimation "/Users/yourusername/Desktop/simplepeptide.gif"
+                   [:PHE :ALA :ASP :GLY] :width 400 :height 800)
+
+```
+![animatespeptide](https://raw.github.com/wiki/zachcp/drawpeptides/resources/simplepeptide.gif)
+
+
+## License
+
+Copyright © 2015 FIXME
+
+Distributed under the Eclipse Public License either version 1.0 or (at
+your option) any later version.
