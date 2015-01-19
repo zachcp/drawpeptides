@@ -3,9 +3,9 @@
 FIXME: description
 
 ## Installation
- git clone https://github.com/zachcp/drawpeptides.git
- cd drawpeptides
- lein repl
+git clone https://github.com/zachcp/drawpeptides.git
+cd drawpeptides
+lein repl
 
 ## Usage
 
