@@ -2,6 +2,7 @@
   (:gen-class)
   (:require [mikera.image.core :refer (rotate load-image show save)])
   (:require [mikera.image.spectrum :refer (wheel)])
+  (:require [gifclj.core :refer (write-gif)] )
   (:import [org.openscience.cdk Atom Bond AminoAcid AtomContainer])
   (:import [org.openscience.cdk.layout StructureDiagramGenerator])
   (:import [org.openscience.cdk.renderer.color UniColor])
@@ -187,24 +188,24 @@
                            outerglowwidth strokeratio symbolmarginratio visibility
                            wavespacing wedgeratio]
                     :or   { width               200
-                           height              200
-                           font                (Font. "Verdana" Font/PLAIN 18)}
-                    annotationcolor     (UniColor. Color/RED)
-                    annotationdistance  0.25
-                    annotationfontscale 0.4
-                    atomcolor           (UniColor. Color/BLACK)
-                    bondseparation      4
-                    fancyboldwedges     true
-                    fancyhashedwedges   true
-                    hashspacing         5
-                    highlighting        (UniColor. Color/RED)
-                    highlightstyle      (. StandardGenerator$HighlightStyle OuterGlow)
-                    outerglowwidth      2.0
-                    strokeratio         1
-                    symbolmarginratio   2
-                    visibility          (. SymbolVisibility all)
-                    wavespacing         5
-                    wedgeratio          8}]
+                            height              200
+                            font                (Font. "Verdana" Font/PLAIN 18)}
+                            annotationcolor     (UniColor. Color/RED)
+                            annotationdistance  0.25
+                            annotationfontscale 0.4
+                            atomcolor           (UniColor. Color/BLACK)
+                            bondseparation      4
+                            fancyboldwedges     true
+                            fancyhashedwedges   true
+                            hashspacing         5
+                            highlighting        (UniColor. Color/RED)
+                            highlightstyle      (. StandardGenerator$HighlightStyle OuterGlow)
+                            outerglowwidth      2.0
+                            strokeratio         1
+                            symbolmarginratio   2
+                            visibility          (. SymbolVisibility all)
+                            wavespacing         5
+                            wedgeratio          8}]
     (let [mol2d (get-2D molecule)
           gen (doto (ArrayList.)
                 (.add (new BasicSceneGenerator))
@@ -240,9 +241,19 @@
       (-> renderer (. paint mol2d (new AWTDrawVisitor g) ))
       image)))
 
+(defn peptideanimation
+  "take a series of aminoacids and generate a GIF of them growing"
+  [filename aminos & {:keys [width height delay loops lastdelay]
+                      :or   {width 400 height 500 delay 50
+                             loops 0   lastdelay 100}}]
+  (let [genimage (fn [m] (makeimage m :width width :height height
+                                      :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+        peps     (map #(take % aminos) (map inc (range (count aminos))))
+        peptides (map makepeptide peps)
+        images   (map genimage peptides)]
+    (write-gif filename images :delay delay :loops loops :lastdelay lastdelay)))
 
 (comment
-
   (def aminos (keys AminoAcids))
 
   (def pep1 (makepeptide (take 3 aminos)))
@@ -276,5 +287,6 @@
   (save image5 "peptide-image5.png")
   ; incorrect bond rotation
 
+  (peptideanimation "/Users/zachpowers/Desktop/test.gif" [:PHE :ALA] )
   )
 
