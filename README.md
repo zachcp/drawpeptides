@@ -18,25 +18,22 @@ turns it into a peptide. `makeimage` creaets and image and can take some keyword
 
 
 (def aminos (keys AminoAcids))
-;To generate a mol:
-(show (makemol))
-
+;make a peptide
 (def pep1 (makepeptide (take 3 aminos)))
+; make an image
 (def image1 (makeimage pep1 :width 800 :height 200  :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+;show it
 (show image1)
-(save image1 "peptide-image1.png")
 
 (show
   (makeimage
-   (makepeptide [:ALA :ALA :ALA :ALA])) )
-
+    (makepeptide [:ALA :ALA :ALA :ALA])) )
 
 ;To generate an animated peptide and write it to the file
 (peptideanimation "/Users/yourusername/Desktop/simplepeptide.gif"
                    [:PHE :ALA :ASP :GLY] :width 400 :height 800)
-
 ```
-![animatespeptide](https://raw.github.com/wiki/zachcp/drawpeptides/resources/simplepeptide.gif)
+![animatespeptide](https://raw.githubusercontent.com/zachcp/drawpeptides/master/resources/simplepeptide.gif)
 
 
 ## License
