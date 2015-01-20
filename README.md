@@ -15,8 +15,6 @@ turns it into a peptide. `makeimage` creaets and image and can take some keyword
 
 
 ```[clojure]
-
-
 (def aminos (keys AminoAcids))
 ;make a peptide
 (def pep1 (makepeptide (take 3 aminos)))
