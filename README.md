@@ -1,6 +1,6 @@
 # drawpeptides
 
-Description and motivation can be found at this [blog post](http://localhost:1313/blog/2015/clojure-cdk-peptides/).
+Description and motivation can be found at this [blog post](http://zachcp.org/blog/2015/clojure-cdk-peptides/).
 
 ## Installation
 
