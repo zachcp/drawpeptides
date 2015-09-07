@@ -2,35 +2,34 @@
   (:gen-class)
   (:require [mikera.image.core :refer (rotate load-image show save)])
   (:require [mikera.image.spectrum :refer (wheel)])
-  (:require [gifclj.core :refer (write-gif)] )
+  (:require [gifclj.core :refer (write-gif)])
   (:import [org.openscience.cdk Atom Bond AminoAcid AtomContainer])
   (:import [org.openscience.cdk.layout StructureDiagramGenerator])
   (:import [org.openscience.cdk.renderer.color UniColor])
   (:import [org.openscience.cdk.renderer.generators.standard StandardGenerator])
-  (:import [org.openscience.cdk.renderer.visitor  AWTDrawVisitor])
+  (:import [org.openscience.cdk.renderer.visitor AWTDrawVisitor])
   (:import [org.openscience.cdk.silent SilentChemObjectBuilder])
   (:import [org.openscience.cdk.smiles SmilesParser])
   (:import [org.openscience.cdk.renderer AtomContainerRenderer SymbolVisibility])
-  (:import [org.openscience.cdk.renderer.color UniColor])
   (:import [org.openscience.cdk.renderer.font AWTFontManager])
   (:import [org.openscience.cdk.renderer.generators BasicSceneGenerator])
   (:import [org.openscience.cdk.renderer.generators.standard StandardGenerator
-                                         StandardGenerator$AnnotationColor
-                                         StandardGenerator$AnnotationFontScale
-                                         StandardGenerator$AnnotationDistance
-                                         StandardGenerator$AtomColor
-                                         StandardGenerator$BondSeparation
-                                         StandardGenerator$FancyBoldWedges
-                                         StandardGenerator$FancyHashedWedges
-                                         StandardGenerator$HashSpacing
-                                         StandardGenerator$Highlighting
-                                         StandardGenerator$HighlightStyle
-                                         StandardGenerator$OuterGlowWidth
-                                         StandardGenerator$StrokeRatio
-                                         StandardGenerator$SymbolMarginRatio
-                                         StandardGenerator$Visibility
-                                         StandardGenerator$WaveSpacing
-                                         StandardGenerator$WedgeRatio])
+                                                             StandardGenerator$AnnotationColor
+                                                             StandardGenerator$AnnotationFontScale
+                                                             StandardGenerator$AnnotationDistance
+                                                             StandardGenerator$AtomColor
+                                                             StandardGenerator$BondSeparation
+                                                             StandardGenerator$FancyBoldWedges
+                                                             StandardGenerator$FancyHashedWedges
+                                                             StandardGenerator$HashSpacing
+                                                             StandardGenerator$Highlighting
+                                                             StandardGenerator$HighlightStyle
+                                                             StandardGenerator$OuterGlowWidth
+                                                             StandardGenerator$StrokeRatio
+                                                             StandardGenerator$SymbolMarginRatio
+                                                             StandardGenerator$Visibility
+                                                             StandardGenerator$WaveSpacing
+                                                             StandardGenerator$WedgeRatio])
   (:import [java.awt Color Font Rectangle])
   (:import [java.awt.image BufferedImage])
   (:import [java.util ArrayList])
@@ -40,27 +39,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def AminoAcids
   "map of substrate molecules and their smiles string"
-  {  ;Canonical amino acida
-   :ALA "NC(C)C(=O)"
-   :GLY "NCC(=O)"
-   :SER "NC(CO)C(=O)"
-   :THR "NC(C(C)O)C(=O)"
-   :CYS "NC(CS)C(=O)"
-   :VAL "NC(C(C)C)C(=O)"
-   :LEU "NC(CC(C)C)C(=O)"
-   :ILE "NC(C(C)CC)C(=O)"
-   :MET "NC(CCSC)C(=O)"
-   :PRO "N1C(C(=O)O)CCC1"
-   :PHE "NC(Cc1ccccc1)C(=O)"
-   :TYR "NC(Cc1cc(O)ccc1)C(=O)"
-   :TRP "N[C@@](CC1=CNC2=C1C=CC=C2)C(=O)"
-   :ASP "NC(CC(=O)O)C(=O)"
-   :GLU "NC(CCC(=O)O)C(=O)"
-   :ASN "NC(CC(=O)N)C(=O)"
-   :GLN "NC(CCC(=O)N)C(=O)"
-   :HIS "N[C@@H](CC1=CN=CN1)C(=O)"
-   :LYS "NC(CCCCN)C(=O)"
-   :ARG "NC(CCCNC(=N)N)C(=O)"
+  {;Canonical amino acida
+   :ALA    "NC(C)C(=O)"
+   :GLY    "NCC(=O)"
+   :SER    "NC(CO)C(=O)"
+   :THR    "NC(C(C)O)C(=O)"
+   :CYS    "NC(CS)C(=O)"
+   :VAL    "NC(C(C)C)C(=O)"
+   :LEU    "NC(CC(C)C)C(=O)"
+   :ILE    "NC(C(C)CC)C(=O)"
+   :MET    "NC(CCSC)C(=O)"
+   :PRO    "N1C(C(=O)O)CCC1"
+   :PHE    "NC(Cc1ccccc1)C(=O)"
+   :TYR    "NC(Cc1cc(O)ccc1)C(=O)"
+   :TRP    "N[C@@](CC1=CNC2=C1C=CC=C2)C(=O)"
+   :ASP    "NC(CC(=O)O)C(=O)"
+   :GLU    "NC(CCC(=O)O)C(=O)"
+   :ASN    "NC(CC(=O)N)C(=O)"
+   :GLN    "NC(CCC(=O)N)C(=O)"
+   :HIS    "N[C@@H](CC1=CN=CN1)C(=O)"
+   :LYS    "NC(CCCCN)C(=O)"
+   :ARG    "NC(CCCNC(=N)N)C(=O)"
    ;Alternative AminoAcids in Secondary Metabolite Pathways
    :3meGLU "N[C@@H](C(C)CC(=O))C(=O)"
    :4mHA   "N1CC(CCC)CC1C(=O)"
@@ -92,26 +91,29 @@
 
 ; Core Functions for Parsing and handling AminoAcids
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn- parsesmiles [smiles]
-  "return an IAtomContainer from smiles input"
-  (let [builder (SilentChemObjectBuilder/getInstance)
-        sp      (SmilesParser. builder)]
-    (.parseSmiles sp smiles)))
 
 (defn- get-2D [mol]
   "generate coordinates for an AtomContainer"
-  (let [sdg   (doto (StructureDiagramGenerator.)
-                (.setMolecule mol)
-                (.generateCoordinates))
+  (let [sdg (doto (StructureDiagramGenerator.)
+              (.setMolecule mol)
+              (.generateCoordinates))
         mol2d (.getMolecule sdg)]
     mol2d))
+
+(defn- parsesmiles [smiles]
+  "return an IAtomContainer from smiles input"
+  (let [builder (SilentChemObjectBuilder/getInstance)
+        sp (SmilesParser. builder)
+        mol (.parseSmiles sp smiles)]
+    (get-2D mol)))
+
 
 (defn- ->AminoAcid [mol]
   "take an AtomContainer and makes an AminoAcid
   the main difference is that AminoAcids have a few extra definitiions that will
-  be used later that alow finding the N and C termini"
-  {:pre  [(= "N" (.getSymbol (first (.atoms mol))))
-          (= "C" (last (butlast (.atoms mol))))]}
+  be used later that allow finding the N and C termini"
+  {:pre [(= "N" (.getSymbol (first (.atoms mol))))
+         (= "C" (last (butlast (.atoms mol))))]}
   (let [AA (new AminoAcid)
         atoms (seq (.atoms mol))
         nterm (.hashCode (first atoms))
@@ -130,10 +132,11 @@
     ;remove H from C-Terminus
     (doto (.getCTerminus AA)
       (.setImplicitHydrogenCount (java.lang.Integer. 0)))
+
     AA))
 
 (defn- get-AA [key]
-  "make a CDK AminoAcid from the AminoAcod data.
+  "make a CDK AminoAcid from the AminoAcid data.
   requires a key and will parse the value."
   {:pre [(keyword? key)
          (get AminoAcids key)]}
@@ -143,7 +146,7 @@
 (defn makepeptide [aminoacids]
   "take a sequence of keywords corresponding to AminoAccids and link them up"
   (let [;make peptide from AminoAcids
-        aaseq  (map get-AA aminoacids)
+        aaseq (map get-AA aminoacids)
         cterms (map #(.getCTerminus %) aaseq)
         nterms (map #(.getNTerminus %) aaseq)
         bondstomake (partition 2 (interleave (rest nterms) (butlast cterms)))
@@ -161,7 +164,7 @@
         ;add all atoms
         (doseq [atm (.atoms aa)]
           (do
-            (doto atm (.setProperty StandardGenerator/HIGHLIGHT_COLOR (nth colors @aacount)) )
+            (doto atm (.setProperty StandardGenerator/HIGHLIGHT_COLOR (nth colors @aacount)))
             (doto AC (.addAtom atm))))
         ;add all bonds
         (doseq [bond (.bonds aa)]
@@ -182,111 +185,112 @@
 (defn makeimage
   "convert an atomcontainer to a BufferdImage"
   (^BufferedImage [^AtomContainer molecule &
-                   {:keys [width  height font annotationcolor annotation
-                           annotationfontscale atomcolor bondseparation fancyboldwedges
-                           fancyhashedwedges hashspacing highlighting highlightstyle
-                           outerglowwidth strokeratio symbolmarginratio visibility
-                           wavespacing wedgeratio]
-                    :or   { width               200
-                            height              200
-                            font                (Font. "Verdana" Font/PLAIN 18)}
-                            annotationcolor     (UniColor. Color/RED)
-                            annotationdistance  0.25
-                            annotationfontscale 0.4
-                            atomcolor           (UniColor. Color/BLACK)
-                            bondseparation      4
-                            fancyboldwedges     true
-                            fancyhashedwedges   true
-                            hashspacing         5
-                            highlighting        (UniColor. Color/RED)
-                            highlightstyle      (. StandardGenerator$HighlightStyle OuterGlow)
-                            outerglowwidth      2.0
-                            strokeratio         1
-                            symbolmarginratio   2
-                            visibility          (. SymbolVisibility all)
-                            wavespacing         5
-                            wedgeratio          8}]
-    (let [mol2d (get-2D molecule)
-          gen (doto (ArrayList.)
-                (.add (new BasicSceneGenerator))
-                (.add (new StandardGenerator font)))
-          ;;Setup the Drawing
-          image (BufferedImage. width height 1)
-          drawArea (Rectangle. width height)
-          g (doto (.getGraphics image)
-              (.fillRect 0 0 width height))
-          renderer (AtomContainerRenderer. gen (new AWTFontManager))
-          rendererModel (.getRenderer2DModel renderer)]
+           {:keys               [width height font annotationcolor annotationdistance
+                                 annotationfontscale atomcolor bondseparation fancyboldwedges
+                                 fancyhashedwedges hashspacing highlighting highlightstyle
+                                 outerglowwidth strokeratio symbolmarginratio visibility
+                                 wavespacing wedgeratio]
+            :or                 {width  200
+                                 height 200
+                                 font   (Font. "Verdana" Font/PLAIN 18)
+            annotationcolor     Color/RED
+            annotationdistance  0.25
+            annotationfontscale 0.4
+            atomcolor           (UniColor. Color/BLACK)
+            bondseparation      0.18
+            fancyboldwedges     true
+            fancyhashedwedges   true
+            hashspacing         5
+            highlighting        (UniColor. Color/RED)
+            highlightstyle      (. StandardGenerator$HighlightStyle OuterGlow)
+            outerglowwidth      2.0
+            strokeratio         1
+            symbolmarginratio   2
+            visibility          (. SymbolVisibility all)
+            wavespacing         5
+            wedgeratio          8}}]
+   (let [mol2d (get-2D molecule)
+         gen (doto (ArrayList.)
+               (.add (new BasicSceneGenerator))
+               (.add (new StandardGenerator font)))
+         ;;Setup the Drawing
+         image (BufferedImage. width height 1)
+         drawArea (Rectangle. width height)
+         g (doto (.getGraphics image)
+             (.fillRect 0 0 width height))
+         renderer (AtomContainerRenderer. gen (new AWTFontManager))
+         rendererModel (.getRenderer2DModel renderer)]
 
-      ;add the global changes here
-      (doto rendererModel
-        (.set StandardGenerator$AnnotationColor annotationcolor)
-        (.set StandardGenerator$AnnotationDistance annotationdistance)
-        (.set StandardGenerator$AnnotationFontScale annotationfontscale)
-        (.set StandardGenerator$AtomColor atomcolor)
-        (.set StandardGenerator$BondSeparation bondseparation)
-        (.set StandardGenerator$FancyBoldWedges fancyboldwedges)
-        (.set StandardGenerator$FancyHashedWedges fancyhashedwedges)
-        (.set StandardGenerator$HashSpacing hashspacing)
-        (.set StandardGenerator$Highlighting highlightstyle)
-        (.set StandardGenerator$OuterGlowWidth outerglowwidth)
-        (.set StandardGenerator$StrokeRatio strokeratio)
-        (.set StandardGenerator$SymbolMarginRatio symbolmarginratio)
-        (.set StandardGenerator$Visibility visibility)
-        (.set StandardGenerator$WaveSpacing wavespacing)
-        (.set StandardGenerator$WedgeRatio wedgeratio))
+     ;add the global changes here
+     (doto rendererModel
+       (.set StandardGenerator$AnnotationColor annotationcolor)
+       (.set StandardGenerator$AnnotationDistance (double annotationdistance))
+       (.set StandardGenerator$AnnotationFontScale (double annotationfontscale))
+       (.set StandardGenerator$AtomColor atomcolor)
+       (.set StandardGenerator$BondSeparation (double bondseparation))
+       (.set StandardGenerator$FancyBoldWedges fancyboldwedges)
+       (.set StandardGenerator$FancyHashedWedges fancyhashedwedges)
+       (.set StandardGenerator$HashSpacing (double hashspacing))
+       (.set StandardGenerator$Highlighting highlightstyle)
+       (.set StandardGenerator$OuterGlowWidth outerglowwidth)
+       (.set StandardGenerator$StrokeRatio (double strokeratio))
+       (.set StandardGenerator$SymbolMarginRatio (double symbolmarginratio))
+       (.set StandardGenerator$Visibility visibility)
+       (.set StandardGenerator$WaveSpacing (double wavespacing))
+       (.set StandardGenerator$WedgeRatio (double wedgeratio))
+       )
 
-      ; render the image
-      (-> renderer (. setup mol2d drawArea))
-      (-> renderer (. paint mol2d (new AWTDrawVisitor g) ))
-      image)))
+     ; render the image
+     (-> renderer (. setup mol2d drawArea))
+     (-> renderer (. paint mol2d (new AWTDrawVisitor g)))
+     image)))
 
 (defn peptideanimation
   "take a series of aminoacids and generate a GIF of them growing"
   [filename aminos & {:keys [width height delay loops lastdelay]
                       :or   {width 400 height 500 delay 50
-                             loops 0   lastdelay 100}}]
+                             loops 0 lastdelay 100}}]
   (let [genimage (fn [m] (makeimage m :width width :height height
-                                      :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
-        peps     (map #(take % aminos) (map inc (range (count aminos))))
+                                    :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+        peps (map #(take % aminos) (map inc (range (count aminos))))
         peptides (map makepeptide peps)
-        images   (map genimage peptides)]
+        images (map genimage peptides)]
     (write-gif filename images :delay delay :loops loops :lastdelay lastdelay)))
 
 (comment
   (def aminos (keys AminoAcids))
 
   (def pep1 (makepeptide (take 3 aminos)))
-  (def image1 (makeimage pep1 :width 800 :height 200  :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+  (def image1 (makeimage pep1 :width 800 :height 200 :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
   (show image1)
   (save image1 "peptide-image1.png")
   ; issue with sidechain rotation
 
-  (def pep2 (makepeptide (take 3 (drop 3  aminos))))
-  (def image2 (makeimage pep2 :width 800 :height 200  :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+  (def pep2 (makepeptide (take 3 (drop 3 aminos))))
+  (def image2 (makeimage pep2 :width 800 :height 200 :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
   (show image2)
   (save image2 "peptide-image2.png")
   ;linear and fine
 
-  (def pep3 (makepeptide (take 3 (drop 6  aminos))))
-  (def image3 (makeimage pep3 :width 800 :height 200  :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+  (def pep3 (makepeptide (take 3 (drop 6 aminos))))
+  (def image3 (makeimage pep3 :width 800 :height 200 :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
   (show image3)
   (save image3 "peptide-image3.png")
   ; linear fine
 
-  (def pep4 (makepeptide (take 3 (drop 9  aminos))))
-  (def image4 (makeimage pep4 :width 800 :height 200  :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+  (def pep4 (makepeptide (take 3 (drop 9 aminos))))
+  (def image4 (makeimage pep4 :width 800 :height 200 :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
   (show image4)
   (save image4 "peptide-image4.png")
 
   ; issue with side chain rotation
 
-  (def pep5 (makepeptide (take 3 (drop 12  aminos))))
-  (def image5 (makeimage pep5 :width 800 :height 600  :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
+  (def pep5 (makepeptide (take 3 (drop 12 aminos))))
+  (def image5 (makeimage pep5 :width 800 :height 600 :highlightstyle (. StandardGenerator$HighlightStyle OuterGlow)))
   (show image5)
   (save image5 "peptide-image5.png")
   ; incorrect bond rotation
 
-  (peptideanimation "/Users/zachpowers/Desktop/test.gif" [:PHE :ALA] )
+  (peptideanimation "/Users/zachpowers/Desktop/test.gif" [:PHE :ALA])
   )
 
