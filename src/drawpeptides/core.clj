@@ -92,16 +92,18 @@
 ; Core Functions for Parsing and handling AminoAcids
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn get-2D [mol]
+(defn get-2D [ ^AtomContainer mol]
   "generate coordinates for an AtomContainer"
+  ^AtomContainer
   (let [sdg (doto (StructureDiagramGenerator.)
-              (.setMolecule mol)
-              (.generateCoordinates))
-        mol2d (.getMolecule sdg)]
-    mol2d))
+               (.setMolecule mol)
+               (.generateCoordinates))
+         mol2d (.getMolecule sdg)]
+     mol2d))
 
 (defn parsesmiles [smiles]
   "return an IAtomContainer from smiles input"
+  ^AtomContainer
   (let [builder (SilentChemObjectBuilder/getInstance)
         sp (SmilesParser. builder)
         mol (.parseSmiles sp smiles)]
@@ -114,6 +116,7 @@
   be used later that allow finding the N and C termini"
   {:pre [(= "N" (.getSymbol (first (.atoms mol))))
          (= "C" (last (butlast (.atoms mol))))]}
+  ^AtomContainer
   (let [AA (new AminoAcid)
         atoms (seq (.atoms mol))
         nterm (.hashCode (first atoms))
@@ -140,18 +143,28 @@
   requires a key and will parse the value."
   {:pre [(keyword? key)
          (get AminoAcids key)]}
+  ^AtomContainer
   (let [mol (parsesmiles (get AminoAcids key))]
     (->AminoAcid mol)))
 
+(def nicecolors
+  "from CDK Depict API
+  https://github.com/cdk/cdk/blob/master/app/depict/src/main/java/org/openscience/cdk/depict/DepictionGenerator.java
+  "
+  (map #(Color. %) [0x00538A,0x93AA00, 0xC10020, 0xFFB300 0x007D34 0xFF6800 0xCEA262 0x817066
+                    0xA6BDD7 0x803E75 0xF6768E 0xFF7A5C 0x53377A 0xFF8E00 0xB32851 0xF4C800
+                    0x7F180D 0x593315 0xF13A13 0x232C16]))
+
 (defn makepeptide [aminoacids]
   "take a sequence of keywords corresponding to AminoAccids and link them up"
+  ^AtomContainer
   (let [;make peptide from AminoAcids
         aaseq (map get-AA aminoacids)
         cterms (map #(.getCTerminus %) aaseq)
         nterms (map #(.getNTerminus %) aaseq)
         bondstomake (partition 2 (interleave (rest nterms) (butlast cterms)))
         bonds (map (fn [[a b]] (Bond. a b)) bondstomake)
-        colors (cycle [Color/RED Color/GREEN Color/BLUE Color/ORANGE])
+        colors nicecolors
         AC (new AtomContainer)
         ;get data about each atom in the final dataset
         ;atomsets (apply hash-map (interleave (map gethashcodes aaseq) aminoacids))
@@ -203,10 +216,10 @@
             hashspacing         5
             highlighting        (UniColor. Color/RED)
             highlightstyle      (. StandardGenerator$HighlightStyle OuterGlow)
-            outerglowwidth      2.0
+            outerglowwidth      6.0
             strokeratio         1
             symbolmarginratio   2
-            visibility          (. SymbolVisibility all)
+            visibility          (. SymbolVisibility iupacRecommendationsWithoutTerminalCarbon)
             wavespacing         5
             wedgeratio          8}}]
    (let [mol2d (get-2D molecule)
@@ -291,6 +304,6 @@
   (save image5 "peptide-image5.png")
   ; incorrect bond rotation
 
-  (peptideanimation "/Users/zachpowers/Desktop/test.gif" [:PHE :ALA])
+  (peptideanimation "/Users/zachpowers/Desktop/test2.gif" (take 17 aminos) :width 2000 :height 2000)
   )
 
