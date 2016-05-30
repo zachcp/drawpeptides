@@ -92,7 +92,7 @@
 ; Core Functions for Parsing and handling AminoAcids
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn- get-2D [mol]
+(defn get-2D [mol]
   "generate coordinates for an AtomContainer"
   (let [sdg (doto (StructureDiagramGenerator.)
               (.setMolecule mol)
@@ -100,7 +100,7 @@
         mol2d (.getMolecule sdg)]
     mol2d))
 
-(defn- parsesmiles [smiles]
+(defn parsesmiles [smiles]
   "return an IAtomContainer from smiles input"
   (let [builder (SilentChemObjectBuilder/getInstance)
         sp (SmilesParser. builder)
