@@ -1,12 +1,12 @@
 (ns drawpeptides.data
-  (:require [drawpeptides.core :as c] )
+  (:require [drawpeptides.core :as c])
   (:import [org.openscience.cdk.io CMLWriter CMLReader])
   (:import [org.openscience.cdk ChemFile])
   (:import [org.openscience.cdk.tools.manipulator ChemFileManipulator])
   (:import [org.openscience.cdk.libio.cml ICMLCustomizer])
   (:import [java.io FileWriter FileReader FileInputStream])
-  (:import [org.openscience.cdk AtomContainer])
-  )
+  (:import [org.openscience.cdk AtomContainer]))
+
 
 (defn writeCML
   "write a cmlfile given an AtomContainer and a name"
@@ -30,14 +30,14 @@
     (let [aa (name k)
           mol (-> smiles (c/parsesmiles) (c/get-2D))
           aapath (str "data/" aa ".cml")]
-      (writeCML mol aapath)
-      )))
+      (writeCML mol aapath))))
+
 
 (convertsmiles)
 
 (let [[k smiles] (first c/AminoAcids)
-      mol (-> smiles (c/parsesmiles) (c/get-2D))
-      ]
+      mol (-> smiles (c/parsesmiles) (c/get-2D))]
+
   (println mol)
   (for [atm (.atoms mol)]
     (do (println atm)
